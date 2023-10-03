@@ -3160,37 +3160,63 @@ p(\Theta|S,v) = \frac{|\Theta|^{(v-p-1)/2} e^{-\text{tr}(S\Theta)/2}}{2^{vp/2}|S
 </section>
 <section id="likelihood" class="level3">
 <h3 class="anchored" data-anchor-id="likelihood">Likelihood</h3>
-<p>Given a sample of <span class="math inline">\(n\)</span> independent and identically distributed observations <span class="math inline">\(Y_1, Y_2, \ldots, Y_n\)</span>, the likelihood of the data given the precision matrix <span class="math inline">\(\Theta\)</span> is:</p>
+<p>Given a sample of <span class="math inline">\(n\)</span> independent and identically distributed observations <span class="math inline">\(y_1, y_2, \ldots, y_n\)</span>, the likelihood of the data given the precision matrix <span class="math inline">\(\Theta\)</span> is:</p>
 <p><span class="math display">\[
-L(\Theta) = \prod_{i=1}^{n} \frac{|\Theta|^{1/2} e^{-\frac{1}{2} Y_i^T \Theta Y_i}}{(2\pi)^{p/2}}
+L(\Theta) = \prod_{i=1}^{n} \frac{|\Theta|^{1/2} e^{-\frac{1}{2} y_i^T \Theta y_i}}{(2\pi)^{p/2}}
 \]</span></p>
 </section>
 <section id="posterior-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="posterior-distribution">Posterior Distribution</h3>
 <p>Using Bayes’ theorem, the posterior distribution of <span class="math inline">\(\Theta\)</span> given the data and the prior is proportional to the product of the likelihood and the prior:</p>
 <p><span class="math display">\[
-p(\Theta|Y_1, Y_2, \ldots, Y_n) \propto L(\Theta) \times p(\Theta|S,v)
+p(\Theta|y_1, y_2, \ldots, y_n) \propto L(\Theta) \times p(\Theta|S,v)
 \]</span></p>
 <p>To derive the posterior distribution in closed form, we need to combine the terms in the likelihood and the prior that involve <span class="math inline">\(\Theta\)</span>:</p>
 <p><span class="math display">\[
-p(\Theta|Y_1, Y_2, \ldots, Y_n) \propto |\Theta|^{n/2 + (v-p-1)/2} e^{-\frac{1}{2} \sum_{i=1}^{n} Y_i^T \Theta Y_i - \frac{1}{2} \text{tr}(S\Theta)}
+p(\Theta|y_1, y_2, \ldots, y_n) \propto |\Theta|^{n/2 + (v-p-1)/2} e^{-\frac{1}{2} \sum_{i=1}^{n} y_i^T \Theta y_i - \frac{1}{2} \text{tr}(S\Theta)}
 \]</span></p>
 <p>Collecting terms, the posterior distribution is also a Wishart distribution with updated parameters:</p>
 <p><span class="math display">\[
-\Theta|Y_1, Y_2, \ldots, Y_n \sim W(S^*, v^*)
+\Theta|y_1, y_2, \ldots, y_n \sim W(S^*, v^*)
 \]</span></p>
 <p>where:</p>
 <p><span class="math display">\[
-S^* = S + \sum_{i=1}^{n} Y_i Y_i^T
+S^* = S + \sum_{i=1}^{n} y_i y_i^\top
 \]</span></p>
 <p><span class="math display">\[
 v^* = v + n
 \]</span></p>
+<p>THIS IS WRONG! UPDATE USING INFORMATION HERE: https://jbds.isdsa.org/public/journals/1/html/v1n2/p2/</p>
 </section>
-<section id="conclusion" class="level3">
-<h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
-<p>The conjugacy between the multivariate Gaussian distribution and the Wishart prior makes Bayesian estimation straightforward. The posterior distribution is also a Wishart distribution with parameters updated based on the observed data.</p>
 </section>
+<section id="adding-covariate-information" class="level2">
+<h2 class="anchored" data-anchor-id="adding-covariate-information">Adding covariate information</h2>
+<p>Let <span class="math inline">\(\mathcal X\)</span> be a set and let <span class="math inline">\(\mathcal F\)</span> be a reproducing kernel Hilbert space (RKHS) on <span class="math inline">\(\mathcal X\)</span> with reproducing kernel <span class="math inline">\(h:\mathcal X \times \mathcal X \to \mathbb R\)</span>. Then the tensor product <span class="math inline">\(\mathcal F \otimes \mathcal F\)</span> is an RKHS on <span class="math inline">\(\mathcal X \times \mathcal X\)</span> with reproducing kernel <span class="math inline">\(h \otimes h\)</span>. Let <span class="math inline">\(\Theta \in \mathcal F \otimes \mathcal F\)</span> be a random element with prior distribution <span class="math inline">\(p(\Theta)\)</span>, say the Wishart distribution. Write <span class="math display">\[
+\Theta = \sum_{t,u=1}^m w_{tu} h(x_t,\cdot) \otimes h(x_u,\cdot).
+\]</span> In other words, the <span class="math inline">\((i,j)\)</span>th element of the precision matrix <span class="math inline">\(\Theta\)</span> is given by <span class="math display">\[
+\Theta_{ij} = \sum_{t,u=1}^m w_{tu} h(x_t, x_i) h(x_u, x_j).
+\]</span> Therefore <span class="math inline">\(\Theta = HWH\)</span>, where <span class="math inline">\(H \in \mathbb R^{m\times m}\)</span> is the kernel matrix with elements <span class="math inline">\(h(x_i, x_j)\)</span> and <span class="math inline">\(W \in \mathbb R^{m\times m}\)</span> is the matrix with elements <span class="math inline">\(w_{tu}\)</span>. Since <span class="math inline">\(\Theta\)</span> has a Wishart distribution, necessarily <span class="math inline">\(W\)</span> also has a Wishart distribution. The prior distribution of <span class="math inline">\(W\)</span> is the Wishart distribution with scale matrix <span class="math inline">\(W_0\)</span> and degrees of freedom <span class="math inline">\(v\)</span>. Thus <span class="math display">\[
+\Theta \sim \mathcal W ( HW_0H, v).
+\]</span></p>
+<section id="deriving-the-posterior-distribution-for-w" class="level3">
+<h3 class="anchored" data-anchor-id="deriving-the-posterior-distribution-for-w">Deriving the posterior distribution for <span class="math inline">\(W\)</span></h3>
+<p>Let <span class="math inline">\(y = \{y_1, y_2, \ldots, y_n\}\)</span> be independent and identically distributed observations from a multivariate Gaussian distribution with mean 0 and precision matrix <span class="math inline">\(\Theta\)</span>. Let <span class="math inline">\(x\in\mathbb R^m\)</span> be a covariate, which is the same for each <span class="math inline">\(y_i\)</span>. Then the likelihood of the data given <span class="math inline">\(W\)</span> is: <span class="math display">\[
+\ell(\Theta \mid W, y) = -\frac{nm}{2} \log(2\pi) + \frac{n}{2} \log |\Theta| - \frac{1}{2} \operatorname{tr}(S \Theta),
+\]</span> where <span class="math inline">\(S = \sum_{i=1}^n y_iy_i^\top\)</span>. Then the posterior distribution for <span class="math inline">\(\Theta\)</span> is then <span class="math display">\[
+\Theta \mid y \sim \mathcal W (HW_0H + S, v + n).
+\]</span> which suggests that <span class="math display">\[
+W \mid y \sim \mathcal W \big( W_0 + H^{-1}SH^{-1}, v + n \big)
+\]</span></p>
+</section>
+</section>
+<section id="setting-an-i-prior" class="level2">
+<h2 class="anchored" data-anchor-id="setting-an-i-prior">Setting an I-prior</h2>
+<p>The covariance kernel of <span class="math inline">\(\Theta\)</span> should be proportional to its Fisher information. The Fisher information of <span class="math inline">\(\Theta\)</span> is given by <span class="math inline">\(I(\theta) = n/2 \Theta \otimes \Theta\)</span>, where <span class="math inline">\(\otimes\)</span> here denotes the Kronecker product.</p>
+<p>Note that, given <span class="math inline">\(W\sim \mathcal W(W_0, v)\)</span>, then <span class="math display">\[
+\operatorname{Var}(\operatorname{vec}(W)) = v (W_0 \otimes W_0).
+\]</span> Hence, the covariance kernel of <span class="math inline">\(\Theta\)</span> should be proportional to <span class="math inline">\(I(\theta)\)</span>, which is equivalent to saying that the covariance kernel of <span class="math inline">\(W\)</span> should be proportional to <span class="math inline">\(I(\theta)\)</span>. An I-prior on <span class="math inline">\(\Theta\)</span> might look like <span class="math display">\[
+W \sim \mathcal W \big( \Theta, v \big).
+\]</span> Which means we could choose the observed information instead, so setting <span class="math inline">\(W_0 = \frac{1}{n}S\)</span>.</p>
 </section>
 
 </main>

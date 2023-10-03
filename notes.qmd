@@ -41,10 +41,10 @@ where $p$ is the dimension of the Gaussian distribution, $\text{tr}$ denotes the
 
 ### Likelihood
 
-Given a sample of $n$ independent and identically distributed observations $Y_1, Y_2, \ldots, Y_n$, the likelihood of the data given the precision matrix $\Theta$ is:
+Given a sample of $n$ independent and identically distributed observations $y_1, y_2, \ldots, y_n$, the likelihood of the data given the precision matrix $\Theta$ is:
 
 $$
-L(\Theta) = \prod_{i=1}^{n} \frac{|\Theta|^{1/2} e^{-\frac{1}{2} Y_i^T \Theta Y_i}}{(2\pi)^{p/2}}
+L(\Theta) = \prod_{i=1}^{n} \frac{|\Theta|^{1/2} e^{-\frac{1}{2} y_i^T \Theta y_i}}{(2\pi)^{p/2}}
 $$
 
 ### Posterior Distribution
@@ -52,32 +52,84 @@ $$
 Using Bayes' theorem, the posterior distribution of $\Theta$ given the data and the prior is proportional to the product of the likelihood and the prior:
 
 $$
-p(\Theta|Y_1, Y_2, \ldots, Y_n) \propto L(\Theta) \times p(\Theta|S,v)
+p(\Theta|y_1, y_2, \ldots, y_n) \propto L(\Theta) \times p(\Theta|S,v)
 $$
 
 To derive the posterior distribution in closed form, we need to combine the terms in the likelihood and the prior that involve $\Theta$:
 
 $$
-p(\Theta|Y_1, Y_2, \ldots, Y_n) \propto |\Theta|^{n/2 + (v-p-1)/2} e^{-\frac{1}{2} \sum_{i=1}^{n} Y_i^T \Theta Y_i - \frac{1}{2} \text{tr}(S\Theta)}
+p(\Theta|y_1, y_2, \ldots, y_n) \propto |\Theta|^{n/2 + (v-p-1)/2} e^{-\frac{1}{2} \sum_{i=1}^{n} y_i^T \Theta y_i - \frac{1}{2} \text{tr}(S\Theta)}
 $$
 
 Collecting terms, the posterior distribution is also a Wishart distribution with updated parameters:
 
 $$
-\Theta|Y_1, Y_2, \ldots, Y_n \sim W(S^*, v^*)
+\Theta|y_1, y_2, \ldots, y_n \sim W(S^*, v^*)
 $$
 
 where:
 
 $$
-S^* = S + \sum_{i=1}^{n} Y_i Y_i^T
+S^* = S + \sum_{i=1}^{n} y_i y_i^\top
 $$
 
 $$
 v^* = v + n
 $$
 
-### Conclusion
+THIS IS WRONG! UPDATE USING INFORMATION HERE: https://jbds.isdsa.org/public/journals/1/html/v1n2/p2/
 
-The conjugacy between the multivariate Gaussian distribution and the Wishart prior makes Bayesian estimation straightforward. The posterior distribution is also a Wishart distribution with parameters updated based on the observed data.
+## Adding covariate information
 
+Let $\mathcal X$ be a set and let $\mathcal F$ be a reproducing kernel Hilbert space (RKHS) on $\mathcal X$ with reproducing kernel $h:\mathcal X \times \mathcal X \to \mathbb R$. 
+Then the tensor product $\mathcal F \otimes \mathcal F$ is an RKHS on $\mathcal X \times \mathcal X$ with reproducing kernel $h \otimes h$.
+Let $\Theta \in \mathcal F \otimes \mathcal F$ be a random element with prior distribution $p(\Theta)$, say the Wishart distribution.
+Write 
+$$
+\Theta = \sum_{t,u=1}^m w_{tu} h(x_t,\cdot) \otimes h(x_u,\cdot).
+$$
+In other words, the $(i,j)$th element of the precision matrix $\Theta$ is given by 
+$$
+\Theta_{ij} = \sum_{t,u=1}^m w_{tu} h(x_t, x_i) h(x_u, x_j).
+$$
+Therefore $\Theta = HWH$, where $H \in \mathbb R^{m\times m}$ is the kernel matrix with elements $h(x_i, x_j)$ and $W \in \mathbb R^{m\times m}$ is the matrix with elements $w_{tu}$.
+Since $\Theta$ has a Wishart distribution, necessarily $W$ also has a Wishart distribution.
+The prior distribution of $W$ is the Wishart distribution with scale matrix $W_0$ and degrees of freedom $v$.
+Thus 
+$$
+\Theta \sim \mathcal W ( HW_0H, v).
+$$
+
+### Deriving the posterior distribution for $W$
+
+Let $y = \{y_1, y_2, \ldots, y_n\}$ be independent and identically distributed observations from a multivariate Gaussian distribution with mean 0 and precision matrix $\Theta$.
+Let $x\in\mathbb R^m$ be a covariate, which is the same for each $y_i$. 
+Then the likelihood of the data given $W$ is:
+$$
+\ell(\Theta \mid W, y) = -\frac{nm}{2} \log(2\pi) + \frac{n}{2} \log |\Theta| - \frac{1}{2} \operatorname{tr}(S \Theta),
+$$
+where $S = \sum_{i=1}^n y_iy_i^\top$.
+Then the posterior distribution for $\Theta$ is then
+$$
+\Theta \mid y \sim \mathcal W (HW_0H + S, v + n).
+$$
+which suggests that
+$$
+W \mid y \sim \mathcal W \big( W_0 + H^{-1}SH^{-1}, v + n \big)
+$$
+
+## Setting an I-prior
+
+The covariance kernel of $\Theta$ should be proportional to its Fisher information.
+The Fisher information of $\Theta$ is given by $I(\theta) = n/2 \Theta \otimes \Theta$, where $\otimes$ here denotes the Kronecker product.
+
+Note that, given $W\sim \mathcal W(W_0, v)$, then 
+$$
+\operatorname{Var}(\operatorname{vec}(W)) = v (W_0 \otimes W_0).
+$$
+Hence, the covariance kernel of $\Theta$ should be proportional to $I(\theta)$, which is equivalent to saying that the covariance kernel of $W$ should be proportional to $I(\theta)$.
+An I-prior on $\Theta$ might look like
+$$
+W \sim \mathcal W \big( \Theta, v \big).
+$$
+Which means we could choose the observed information instead, so setting $W_0 = \frac{1}{n}S$.
