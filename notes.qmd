@@ -16,6 +16,7 @@ abstract: |
 format: 
   html:
     embed-resources: true
+    freeze: auto
 ---
 
 ## Introduction 
