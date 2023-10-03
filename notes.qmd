@@ -1,0 +1,82 @@
+---
+title: "Estimation of Gaussian covariance kernels using covariate information"
+author: 
+  - name: Wicher Bergsma
+    orcid: 0000-0002-2422-2359
+    # email: haziq.jamil@ubd.edu.bn
+    affiliations:
+      - name: London School of Economics and Political Science
+  - name: Haziq Jamil
+    orcid: 0000-0003-3298-1010
+    # email: haziq.jamil@ubd.edu.bn
+    affiliations:
+      - name: Universiti Brunei Darussalam
+abstract: |
+  Assuming the covariance kernel to be in a conditional RKHS, we propose a methodology to estimate it and its hyperparameters. The present work can be viewed as an extension of the I-prior methodology for regression (Bergsma, 2019; Bergsma and Jamil, 2023) to covariance estimation. Applications are not only in time series analysis (when time is the covariate), but also in regression when we want a flexible estimation of the error covariance.
+format: 
+  html:
+    embed-resources: true
+---
+
+## Introduction 
+
+Consider a multivariate Gaussian distribution with mean 0 and precision matrix $\Theta$:
+
+$$
+Y \sim N(0, \Theta^{-1})
+$$
+
+The precision matrix, $\Theta$, is the inverse of the covariance matrix. Estimating the precision matrix is of paramount importance in various applications, such as graphical modeling and finance.
+
+### Prior Distribution
+
+A conjugate prior for the precision matrix of a multivariate Gaussian distribution is the Wishart distribution. The Wishart distribution is parameterized by a scale matrix $S$ and degrees of freedom $v$. The probability density function (pdf) of the Wishart distribution is given by:
+
+$$
+p(\Theta|S,v) = \frac{|\Theta|^{(v-p-1)/2} e^{-\text{tr}(S\Theta)/2}}{2^{vp/2}|S|^{v/2}\Gamma_p(v/2)}
+$$
+
+where $p$ is the dimension of the Gaussian distribution, $\text{tr}$ denotes the trace of a matrix, and $\Gamma_p$ is the multivariate gamma function.
+
+### Likelihood
+
+Given a sample of $n$ independent and identically distributed observations $Y_1, Y_2, \ldots, Y_n$, the likelihood of the data given the precision matrix $\Theta$ is:
+
+$$
+L(\Theta) = \prod_{i=1}^{n} \frac{|\Theta|^{1/2} e^{-\frac{1}{2} Y_i^T \Theta Y_i}}{(2\pi)^{p/2}}
+$$
+
+### Posterior Distribution
+
+Using Bayes' theorem, the posterior distribution of $\Theta$ given the data and the prior is proportional to the product of the likelihood and the prior:
+
+$$
+p(\Theta|Y_1, Y_2, \ldots, Y_n) \propto L(\Theta) \times p(\Theta|S,v)
+$$
+
+To derive the posterior distribution in closed form, we need to combine the terms in the likelihood and the prior that involve $\Theta$:
+
+$$
+p(\Theta|Y_1, Y_2, \ldots, Y_n) \propto |\Theta|^{n/2 + (v-p-1)/2} e^{-\frac{1}{2} \sum_{i=1}^{n} Y_i^T \Theta Y_i - \frac{1}{2} \text{tr}(S\Theta)}
+$$
+
+Collecting terms, the posterior distribution is also a Wishart distribution with updated parameters:
+
+$$
+\Theta|Y_1, Y_2, \ldots, Y_n \sim W(S^*, v^*)
+$$
+
+where:
+
+$$
+S^* = S + \sum_{i=1}^{n} Y_i Y_i^T
+$$
+
+$$
+v^* = v + n
+$$
+
+### Conclusion
+
+The conjugacy between the multivariate Gaussian distribution and the Wishart prior makes Bayesian estimation straightforward. The posterior distribution is also a Wishart distribution with parameters updated based on the observed data.
+
