@@ -3197,13 +3197,12 @@ e^{-\frac{1}{2} \sum_{i=1}^{n} y_i^T \Theta y_i - \frac{1}{2} \text{tr}(W_0^{-1}
 <p><span class="math display">\[
 \Theta \mid \mathcal Y \sim \mathcal W(\hat W, \hat\nu)
 \]</span> where <span class="math display">\[
-\hat W = W_0^{-1} + nS
-\]</span></p>
-<p><span class="math display">\[
-\hat\nu = \nu + n
+\hat W = (W_0^{-1} + nS)^{-1}
+\]</span> and <span class="math display">\[
+\hat\nu = \nu + n.
 \]</span></p>
 <p>The posteior mean of <span class="math inline">\(\Theta\)</span> is <span class="math display">\[
-\operatorname{E}[ \Theta \mid \mathcal Y] = (\nu + n)(W_0^{-1} + nS)^{-1}.
+\operatorname{E}[ \Theta \mid \mathcal Y] = \hat\nu\hat W = (\nu + n)(W_0^{-1} + nS)^{-1}.
 \]</span> It’s worth noting that while posterior distribution obtained when specifiying an Inverse-Wishart prior for the covariance matrix <span class="math inline">\(\Sigma = \Theta^{-1}\)</span> is exactly the same what has been derived above, the posterior mean is different. That is, <span class="math display">\[
 \operatorname{E}[ \Theta \mid \mathcal Y]^{-1} \neq \operatorname{E}[ \Sigma \mid \mathcal Y],
 \]</span> and one cannot simply invert the posterior mean of <span class="math inline">\(\Theta\)</span> to obtain the posterior mean of <span class="math inline">\(\Sigma\)</span>.</p>
@@ -3223,20 +3222,20 @@ e^{-\frac{1}{2} \sum_{i=1}^{n} y_i^T \Theta y_i - \frac{1}{2} \text{tr}(W_0^{-1}
 <p>Let <span class="math inline">\(y = \{y_1, y_2, \ldots, y_n\}\)</span> be independent and identically distributed observations from a multivariate Gaussian distribution with mean 0 and precision matrix <span class="math inline">\(\Theta\)</span>. Let <span class="math inline">\(x\in\mathbb R^m\)</span> be a covariate, which is the same for each <span class="math inline">\(y_i\)</span>. Then the likelihood of the data given <span class="math inline">\(W\)</span> is: <span class="math display">\[
 \ell(\Theta \mid W, y) = -\frac{nm}{2} \log(2\pi) + \frac{n}{2} \log |\Theta| - \frac{1}{2} \operatorname{tr}(S \Theta).
 \]</span> Then the posterior distribution for <span class="math inline">\(\Theta\)</span> is then <span class="math display">\[
-\Theta \mid y \sim \mathcal W (HW_0H + nS, \nu + n).
+\Theta \mid y \sim \mathcal W\big ([(HW_0H)^{-1} + nS]^{-1}, \nu + n\big).
 \]</span> which suggests that <span class="math display">\[
-W \mid y \sim \mathcal W \big( W_0 + nH^{-1}SH^{-1}, \nu + n \big)
+W \mid y \sim \mathcal W \big( (W_0^{-1} + nHSH)^{-1}, \nu + n \big)
 \]</span></p>
 </section>
 </section>
 <section id="setting-an-i-prior" class="level2">
 <h2 class="anchored" data-anchor-id="setting-an-i-prior">Setting an I-prior</h2>
-<p>The covariance kernel of <span class="math inline">\(\Theta\)</span> should be proportional to its Fisher information. The Fisher information of <span class="math inline">\(\Theta\)</span> is given by <span class="math inline">\(I(\theta) = (n/2) \Theta \otimes \Theta\)</span>, where <span class="math inline">\(\otimes\)</span> here denotes the Kronecker product.</p>
-<p>Note that, given <span class="math inline">\(W\sim \mathcal W(W_0, v)\)</span>, then <span class="math display">\[
+<p>The covariance kernel of <span class="math inline">\(\Theta\)</span> should be proportional to its Fisher information. For a multivariate normal distribution with mean <span class="math inline">\(\mu\)</span> and precision matrix <span class="math inline">\(\Theta\)</span>, the Fisher information for the precision matrix is given by <span class="math inline">\(I(\Theta) = \frac{n}{2} \Theta \otimes \Theta\)</span>, where <span class="math inline">\(\otimes\)</span> here denotes the Kronecker product.</p>
+<p>On the other hand, given <span class="math inline">\(W\sim \mathcal W(W_0, v)\)</span>, then <span class="math display">\[
 \operatorname{Var}(\operatorname{vec}(W)) = v (W_0 \otimes W_0).
-\]</span> Hence, the covariance kernel of <span class="math inline">\(\Theta\)</span> should be proportional to <span class="math inline">\(I(\theta)\)</span>, which is equivalent to saying that the covariance kernel of <span class="math inline">\(W\)</span> should be proportional to <span class="math inline">\(I(\theta)\)</span>. An I-prior on <span class="math inline">\(\Theta\)</span> might look like <span class="math display">\[
+\]</span> Hence, if it is required that the covariance kernel of <span class="math inline">\(\Theta\)</span> should be proportional to <span class="math inline">\(I(\Theta)\)</span>, then the covariance kernel of the prior on the <span class="math inline">\(W\)</span> matrix should be proportional to <span class="math inline">\(I(\Theta)\)</span>. An I-prior on <span class="math inline">\(\Theta\)</span> might look like <span class="math display">\[
 W \sim \mathcal W \big( \Theta, v \big).
-\]</span> Which means we could choose the observed information instead, so setting <span class="math inline">\(W_0 = S^{-1}\)</span>.</p>
+\]</span> Which means we could choose the observed information instead, so setting <span class="math inline">\(W_0 = S\)</span>. [Or… <span class="math inline">\(S^{-1}\)</span>???]</p>
 </section>
 
 </main>
