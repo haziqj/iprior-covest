@@ -74,16 +74,16 @@ $$
 $$
 where
 $$
-\hat W = W_0^{-1} + nS
+\hat W = (W_0^{-1} + nS)^{-1}
 $$
-
+and
 $$
-\hat\nu = \nu + n
+\hat\nu = \nu + n.
 $$
 
 The posteior mean of $\Theta$ is 
 $$
-\operatorname{E}[ \Theta \mid \mathcal Y] = (\nu + n)(W_0^{-1} + nS)^{-1}.
+\operatorname{E}[ \Theta \mid \mathcal Y] = \hat\nu\hat W = (\nu + n)(W_0^{-1} + nS)^{-1}.
 $$
 It's worth noting that while posterior distribution obtained when specifiying an Inverse-Wishart prior for the covariance matrix $\Sigma = \Theta^{-1}$ is exactly the same what has been derived above, the posterior mean is different.
 That is,
@@ -124,30 +124,28 @@ $$
 $$
 Then the posterior distribution for $\Theta$ is then
 $$
-\Theta \mid y \sim \mathcal W (HW_0H + nS, \nu + n).
+\Theta \mid y \sim \mathcal W\big ([(HW_0H)^{-1} + nS]^{-1}, \nu + n\big).
 $$
 which suggests that
 $$
-W \mid y \sim \mathcal W \big( W_0 + nH^{-1}SH^{-1}, \nu + n \big)
+W \mid y \sim \mathcal W \big( (W_0^{-1} + nHSH)^{-1}, \nu + n \big)
 $$
-
-
 
 ## Setting an I-prior
 
 The covariance kernel of $\Theta$ should be proportional to its Fisher information.
-The Fisher information of $\Theta$ is given by $I(\theta) = (n/2) \Theta \otimes \Theta$, where $\otimes$ here denotes the Kronecker product.
+For a multivariate normal distribution with mean $\mu$ and precision matrix $\Theta$, the Fisher information for the precision matrix is given by $I(\Theta) = \frac{n}{2} \Theta \otimes \Theta$, where $\otimes$ here denotes the Kronecker product.
 
-Note that, given $W\sim \mathcal W(W_0, v)$, then 
+On the other hand, given $W\sim \mathcal W(W_0, v)$, then 
 $$
 \operatorname{Var}(\operatorname{vec}(W)) = v (W_0 \otimes W_0).
 $$
-Hence, the covariance kernel of $\Theta$ should be proportional to $I(\theta)$, which is equivalent to saying that the covariance kernel of $W$ should be proportional to $I(\theta)$.
+Hence, if it is required that the covariance kernel of $\Theta$ should be proportional to $I(\Theta)$, then the covariance kernel of the prior on the $W$ matrix should be proportional to $I(\Theta)$.
 An I-prior on $\Theta$ might look like
 $$
 W \sim \mathcal W \big( \Theta, v \big).
 $$
-Which means we could choose the observed information instead, so setting $W_0 = S^{-1}$.
+Which means we could choose the observed information instead, so setting $W_0 = S$. [Or... $S^{-1}$???]
 
 
 
