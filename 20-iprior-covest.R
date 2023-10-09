@@ -57,9 +57,9 @@ set.seed(123)
 
 # I-prior process --------------------------------------------------------------
 m <- 5
-x <- rnorm(m)
-Sigma0 <- (x %*% t(x) + diag(rep(0.0001, m)))
-Theta0 <- solve(Sigma0)
+x <- runif(m, 1, 2)
+Theta0 <- (x %*% t(x))
+Sigma0 <- solve(Theta0  + diag(rep(1, m)))
 n <- 10000
 y <- mvtnorm::rmvnorm(n = n, sigma = Sigma0)
 H <- kern_fbm(x)
@@ -71,7 +71,7 @@ nuhat <- nrow(What) + n
 Theta_hat <- H %*% (What * nuhat) %*% H
 
 round(Theta0, 3)
-round(Theta_hat * Theta0[1, 1] / Theta_hat[1, 1], 3)
+round(Theta_hat, 3)
 
 
 

@@ -20,6 +20,12 @@ format:
     freeze: auto
 ---
 
+```{r setup}
+#| include: false
+library(corrplot)
+library(iprior)
+```
+
 ## Introduction 
 
 Consider a multivariate Gaussian distribution with mean 0 and precision matrix $\Theta$:
@@ -49,7 +55,7 @@ We write $\Theta \sim \mathcal W(W, \nu)$.
 Given a sample of $n$ independent and identically distributed observations $\mathcal Y = \{y_1, y_2, \ldots, y_n\}$, the likelihood of the data given the precision matrix $\Theta$ is:
 
 $$
-L(\Theta \mid \mathcal Y) = \prod_{i=1}^{n} \frac{|\Theta|^{1/2} e^{-\frac{1}{2} y_i^T \Theta y_i}}{(2\pi)^{p/2}}
+L(\Theta \mid \mathcal Y) = \prod_{i=1}^{n} \frac{|\Theta|^{1/2} e^{-\frac{1}{2} y_i^T \Theta y_i}}{(2\pi)^{m/2}}
 $$
 
 ### Posterior distribution
@@ -70,20 +76,20 @@ Write $S=n^{-1}\sum_{i=1}^{n} y_i y_i^\top$ for the sample covariance matrix.
 Collecting terms, the posterior distribution is also a Wishart distribution with updated parameters:
 
 $$
-\Theta \mid \mathcal Y \sim \mathcal W(\hat W, \hat\nu)
+\Theta \mid \mathcal Y \sim \mathcal W( W^*, \nu^*)
 $$
 where
 $$
-\hat W = (W_0^{-1} + nS)^{-1}
+W^* = (W_0^{-1} + nS)^{-1}
 $$
 and
 $$
-\hat\nu = \nu + n.
+\nu^* = \nu + n.
 $$
 
 The posteior mean of $\Theta$ is 
 $$
-\operatorname{E}[ \Theta \mid \mathcal Y] = \hat\nu\hat W = (\nu + n)(W_0^{-1} + nS)^{-1}.
+\operatorname{E}[ \Theta \mid \mathcal Y] = \nu^* W^* = (\nu + n)(W_0^{-1} + nS)^{-1}.
 $$
 It's worth noting that while posterior distribution obtained when specifiying an Inverse-Wishart prior for the covariance matrix $\Sigma = \Theta^{-1}$ is exactly the same what has been derived above, the posterior mean is different.
 That is,
@@ -91,7 +97,6 @@ $$
 \operatorname{E}[ \Theta \mid \mathcal Y]^{-1} \neq \operatorname{E}[ \Sigma \mid \mathcal Y],
 $$
 and one cannot simply invert the posterior mean of $\Theta$ to obtain the posterior mean of $\Sigma$.
-
 
 ## Adding covariate information
 
@@ -148,4 +153,36 @@ $$
 Which means we could choose the observed information instead, so setting $W_0 = S$. [Or... $S^{-1}$???]
 
 
+## Experiments
+
+Here the idea is to simulate data from a multivariate normal distribution with a known precision matrix $\Theta$.
+Then we will try to recover $\Theta$ using the I-prior.
+
+### Simulate data
+
+The true $\Theta$ is made dependent on the covariate $x$.
+
+```{r}
+m <- 5
+x <- rnorm(m)
+Theta0 <- (x %*% t(x) + diag(rep(0.0001, m)))
+Sigma0 <- solve(Theta0)
+n <- 10000
+y <- mvtnorm::rmvnorm(n = n, sigma = Sigma0)
+H <- kern_fbm(x)
+
+corrplot(Theta0, is.corr = FALSE, col = COL2('RdBu', 10), addCoef.col = 'black')
+```
+
+### Posterior estimate
+
+```{r}
+# Posterior mean of I-prior estimate for Theta
+S <- crossprod(y - mean(y)) / n
+What <- solve(n * H %*% S %*% H + solve(S))
+nuhat <- nrow(What) + n
+Theta_hat <- H %*% (What * nuhat) %*% H
+
+corrplot(Theta_hat, is.corr = FALSE, col = COL2('RdBu', 10), addCoef.col = 'black')
+```
 
