@@ -6,62 +6,84 @@ set.seed(123)
 
 # Generate data
 # m <- 10  
-n <- 100
+# n <- 100
 # x <- rchisq(m, df = 100)
 # Theta_true <- solve(x %*% t(x) + diag(rep(0.0001, m)))
 # # R <- tcrossprod(rnorm(m, sd = 0.5))
 # Theta <- Theta_true #+ R + diag(rep(0.1, m))
 # y <- mvtnorm::rmvnorm(n, rep(0, m), solve(Theta))
-
-m <- 2
-Sigma <- matrix(c(5, 2, 2, 10), nrow = m)
-Theta <- solve(Sigma)
-y <- mvtnorm::rmvnorm(n = n, sigma = Sigma)
-
-
-# Posterior distribution of Theta
-S <- crossprod(y - mean(y)) / n
-W0 <- 1000 * diag(m)
-nu <- m
-What <- solve(W0) + n * S
-nuhat <- nu + n
-Thetahat <- nuhat * solve(What) 
-
-# AR(1) process ----------------------------------------------------------------
-# Parameters for the AR(1) process
-phi <- 0.8
-sigma2 <- 1
-m <- 10
-
-# Initialize the covariance matrix
-R <- matrix(0, nrow = m, ncol = m)
-
-# Compute the covariance values
-for (i in 1:m) {
-  for (j in 1:m) {
-    R[i, j] <- (phi ^ abs(i - j)) * sigma2
-  }
-}
-
-Sigma <- R
-Theta <- solve(Sigma)
-y <- mvtnorm::rmvnorm(n = n, sigma = Sigma)
-
-# Posterior distribution of Theta
-S <- crossprod(y - mean(y)) / n
-W0 <- 1000 * diag(m)
-nu <- m
-What <- solve(W0) + n * S
-nuhat <- nu + n
-Thetahat <- nuhat * solve(What) 
+# 
+# m <- 2
+# Sigma <- matrix(c(5, 2, 2, 10), nrow = m)
+# Theta <- solve(Sigma)
+# y <- mvtnorm::rmvnorm(n = n, sigma = Sigma)
+# 
+# 
+# # Posterior distribution of Theta
+# S <- crossprod(y - mean(y)) / n
+# W0 <- 1000 * diag(m)
+# nu <- m
+# What <- solve(W0) + n * S
+# nuhat <- nu + n
+# Thetahat <- nuhat * solve(What) 
+# 
+# # AR(1) process ----------------------------------------------------------------
+# # Parameters for the AR(1) process
+# phi <- 0.8
+# sigma2 <- 1
+# m <- 10
+# 
+# # Initialize the covariance matrix
+# R <- matrix(0, nrow = m, ncol = m)
+# 
+# # Compute the covariance values
+# for (i in 1:m) {
+#   for (j in 1:m) {
+#     R[i, j] <- (phi ^ abs(i - j)) * sigma2
+#   }
+# }
+# 
+# Sigma <- R
+# Theta <- solve(Sigma)
+# y <- mvtnorm::rmvnorm(n = n, sigma = Sigma)
+# 
+# # Posterior distribution of Theta
+# S <- crossprod(y - mean(y)) / n
+# W0 <- 1000 * diag(m)
+# nu <- m
+# What <- solve(W0) + n * S
+# nuhat <- nu + n
+# Thetahat <- nuhat * solve(What) 
 
 # I-prior process --------------------------------------------------------------
-n <- 500
-m <- 4
-x <- runif(m, 1, 2)
+m <- 5
+x <- rnorm(m)
+Sigma0 <- (x %*% t(x) + diag(rep(0.0001, m)))
+Theta0 <- solve(Sigma0)
+n <- 10000
+y <- mvtnorm::rmvnorm(n = n, sigma = Sigma0)
 H <- kern_fbm(x)
-Theta_true <- x %*% t(x) + diag(x)
-y <- mvtnorm::rmvnorm(n, rep(0, m), solve(Theta_true))
+
+# Posterior mean of I-prior estimate for Theta
+S <- crossprod(y - mean(y)) / n
+What <- solve(n * H %*% S %*% H + solve(S))
+nuhat <- nrow(What) + n
+Theta_hat <- H %*% (What * nuhat) %*% H
+
+round(Theta0, 3)
+round(Theta_hat * Theta0[1, 1] / Theta_hat[1, 1], 3)
+
+
+
+
+
+
+
+
+
+
+
+
 
 # write a function to get the diagonal and off-diagonals of W
 vec_mat <- function(x) {
@@ -113,11 +135,3 @@ map(1:B, \(x) tibble(i = x,
   scale_x_continuous(breaks = seq_len(m * (m + 1) / 2)) +
   theme(panel.grid.minor.x = element_blank(),
         axis.text.x = element_text(angle = 90, hjust = 1)) 
-
-
-
-
-
-
-
-
